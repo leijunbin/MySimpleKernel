@@ -1,5 +1,8 @@
+#include "types.h"
+#include "gdt.h"
+
 void printf(char* str){
-    static unsigned short* VedioMemory = (unsigned short*) 0xb8000;
+    static uint16_t* VedioMemory = (uint16_t*) 0xb8000;
     for(int i = 0; str[i] != '\0'; i++)
         VedioMemory[i] = (VedioMemory[i] & 0xFF00) | str[i];
 }
@@ -13,7 +16,9 @@ extern "C" void callConstructors(){
 }
 
 
-extern "C" void KernelMain(const void *multiboot_structure, unsigned int multiboot_magic){
+extern "C" void KernelMain(const void *multiboot_structure, uint32_t multiboot_magic){
     printf((char*)"Hello World");
+
+    GlobalDescriptorTable gdt;
     while(1);
 }
