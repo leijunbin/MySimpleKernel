@@ -2,7 +2,7 @@ GCCPARAMS = -m32 -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-excep
 ASPARAMS = --32
 LDPARASM = -melf_i386
 
-object = loader.o kernel.o gdt.o
+object = loader.o kernel.o gdt.o port.o
 
 %.o : %.cpp
 	g++ ${GCCPARAMS} -c -o $@ $<
@@ -32,3 +32,6 @@ run : mykernel.iso
 	(killall VirtualBoxVM && sleep 1) || true
 	virtualboxvm --startvm "MyOs" &
 
+.PYHONY: clean
+clean:
+	rm -rf ${object} mykernel.bin mykernel.iso
