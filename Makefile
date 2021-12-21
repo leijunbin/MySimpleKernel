@@ -29,8 +29,8 @@ mykernel.iso : mykernel.bin
 	rm -rf iso
 
 run : mykernel.iso
-	(killall VirtualBoxVM && sleep 1) || true
-	virtualboxvm --startvm "MyOs" &
+	tasklist.exe /nh|findstr.exe VirtualBoxVM > /dev/null && taskkill.exe /f /im VirtualBoxVM.exe > /dev/null && sleep 1 || true
+	VBoxManage.exe startvm "MyOs"
 
 .PYHONY: clean
 clean:
