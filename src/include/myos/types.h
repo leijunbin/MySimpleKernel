@@ -3,13 +3,17 @@
 
 #define EDF -1 // end of file
 
-#define NULL 0 //空指针
+#define NULL ((void *)0) //空指针
+
+#define EOS '\0'
 
 #define bool _Bool
 #define true 1
 #define false 0
 
 #define _packed __attribute__((packed)) //忽略内存对齐
+
+typedef unsigned int size_t;
 
 typedef char int8;
 typedef short int16;

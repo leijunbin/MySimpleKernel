@@ -1,14 +1,19 @@
 #include <myos/myos.h>
+#include <myos/types.h>
+#include <myos/io.h>
+#include <myos/string.h>
+#include <myos/console.h>
 
-int magic = MYOS_MAGIC;
-char message[] = "Hello world!!!";
+char message[] = "Hello myos!!!\n";
 char buf[1024];
 
 void kernel_init()
 {
-    char *video = (char *)0xb8000;
-    for (int i = 0; i < sizeof(message); i++)
+    console_init();
+    int count = 100000;
+    while (count--)
     {
-        video[i * 2] = message[i];
+        console_write(message, sizeof(message) - 1);
     }
+    return;
 }

@@ -29,8 +29,15 @@ $(BUILD)/kernel/%.o: $(SRC)/kernel/%.cpp
 	$(shell mkdir -p $(dir $@))
 	g++ $(CFLAGS) $(DEBUG) $(INCLUDE) -c $< -o $@
 
+$(BUILD)/lib/%.o: $(SRC)/lib/%.cpp
+	$(shell mkdir -p $(dir $@))
+	g++ $(CFLAGS) $(DEBUG) $(INCLUDE) -c $< -o $@
+
 $(BUILD)/kernel.bin: $(BUILD)/kernel/start.o \
-					$(BUILD)/kernel/main.o
+					 $(BUILD)/kernel/main.o \
+					$(BUILD)/kernel/io.o \
+					$(BUILD)/kernel/console.o \
+					$(BUILD)/lib/string.o
 	$(shell mkdir -p $(dir $@))
 	ld -m elf_i386 -static $^ -o $@ -Ttext $(ENTRYPOINT)
 
