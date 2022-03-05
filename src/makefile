@@ -10,7 +10,6 @@ CFLAGS+= -fno-pic # 不需要位置无关代码 position independent code
 CFLAGS+= -fno-pie # 不需要位置无关可执行程序 position independent executable
 CFLAGS+= -nostdlib # 不需要标准库
 CFLAGS+= -fno-stack-protector # 不需要栈保护
-CFLAGS+= -Wno-write-strings # 不需要char*警告
 CFLAGS:= $(strip $(CFLAGS)) 
 
 DEBUG:= -g   
@@ -26,13 +25,13 @@ $(BUILD)/kernel/%.o: $(SRC)/kernel/%.asm
 	$(shell mkdir -p $(dir $@))
 	nasm -f elf32 $(DEBUG) $< -o $@
 
-$(BUILD)/kernel/%.o: $(SRC)/kernel/%.cpp
+$(BUILD)/kernel/%.o: $(SRC)/kernel/%.c
 	$(shell mkdir -p $(dir $@))
-	g++ $(CFLAGS) $(DEBUG) $(INCLUDE) -c $< -o $@
+	gcc $(CFLAGS) $(DEBUG) $(INCLUDE) -c $< -o $@
 
-$(BUILD)/lib/%.o: $(SRC)/lib/%.cpp
+$(BUILD)/lib/%.o: $(SRC)/lib/%.c
 	$(shell mkdir -p $(dir $@))
-	g++ $(CFLAGS) $(DEBUG) $(INCLUDE) -c $< -o $@
+	gcc $(CFLAGS) $(DEBUG) $(INCLUDE) -c $< -o $@
 
 $(BUILD)/kernel.bin: $(BUILD)/kernel/start.o \
 					 $(BUILD)/kernel/main.o \
@@ -42,6 +41,8 @@ $(BUILD)/kernel.bin: $(BUILD)/kernel/start.o \
 					$(BUILD)/kernel/assert.o \
 					$(BUILD)/kernel/debug.o \
 					$(BUILD)/kernel/global.o \
+					$(BUILD)/kernel/task.o \
+					$(BUILD)/kernel/schedule.o \
 					$(BUILD)/lib/vsprintf.o \
 					$(BUILD)/lib/string.o
 	$(shell mkdir -p $(dir $@))

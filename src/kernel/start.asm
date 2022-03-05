@@ -1,9 +1,9 @@
 [bits 32]
 
-extern _Z11kernel_initv
+extern kernel_init
 
 global _start
 
 _start:
-    call _Z11kernel_initv
+    call kernel_init
     jmp $

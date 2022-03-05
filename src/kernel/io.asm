@@ -2,8 +2,8 @@
 
 section .text
 
-global _Z3inbt ; 端口输入一个字节
-_Z3inbt:
+global inb ; 端口输入一个字节
+inb  :
     push ebp
     mov ebp, esp  ; 保存栈帧
 
@@ -18,8 +18,8 @@ _Z3inbt:
     leave ; 恢复栈帧
     ret
 
-global _Z4outbth ; CPU输出一个字节
-_Z4outbth:
+global outb ; CPU输出一个字节
+outb:
     push ebp
     mov ebp, esp  ; 保存栈帧
 
@@ -34,8 +34,8 @@ _Z4outbth:
     leave ; 恢复栈帧
     ret
 
-global _Z3inwt ; 端口输入一个字节
-_Z3inwt:
+global _inw ; 端口输入一个字节
+inw:
     push ebp
     mov ebp, esp  ; 保存栈帧
 
@@ -50,8 +50,8 @@ _Z3inwt:
     leave ; 恢复栈帧
     ret
 
-global _Z4outwtt ; CPU输出一个字节
-_Z4outwtt:
+global outw ; CPU输出一个字节
+outw:
     push ebp
     mov ebp, esp  ; 保存栈帧
 

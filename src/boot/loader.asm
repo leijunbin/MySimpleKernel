@@ -95,6 +95,7 @@ protected_mode:
 
     ub2 ;表示出错
 
+
 read_disk:
     ;设置读写扇区数量
     mov dx, 0x1f2
