@@ -12,10 +12,9 @@ CFLAGS+= -nostdlib # 不需要标准库
 CFLAGS+= -fno-stack-protector # 不需要栈保护
 CFLAGS:= $(strip $(CFLAGS)) 
 
-DEBUG:= -g   
+DEBUG:= -g
 
 INCLUDE:= -I$(SRC)/include
-
 
 $(BUILD)/boot/%.bin: $(SRC)/boot/%.asm
 	$(shell mkdir -p $(dir $@))
@@ -43,6 +42,8 @@ $(BUILD)/kernel.bin: $(BUILD)/kernel/start.o \
 					$(BUILD)/kernel/global.o \
 					$(BUILD)/kernel/task.o \
 					$(BUILD)/kernel/schedule.o \
+					$(BUILD)/kernel/interrupt.o \
+					$(BUILD)/kernel/handler.o \
 					$(BUILD)/lib/vsprintf.o \
 					$(BUILD)/lib/string.o
 	$(shell mkdir -p $(dir $@))

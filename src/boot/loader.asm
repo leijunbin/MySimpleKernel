@@ -91,10 +91,7 @@ protected_mode:
 
     call read_disk
 
-    jmp dword code_selector:0x10000
-
-    ub2 ;表示出错
-
+    jmp dword code_selector:0x10000 
 
 read_disk:
     ;设置读写扇区数量
