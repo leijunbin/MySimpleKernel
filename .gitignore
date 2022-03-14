@@ -34,4 +34,6 @@
 *.bin
 *.iso
 
+build
 test
+.vscode

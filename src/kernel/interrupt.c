@@ -1,8 +1,19 @@
-#include <myos/interrupt.h>
-#include <myos/global.h>
-#include <myos/printk.h>
+// Copyright 2022 Junbin Lei
 
-#define ENTRY_SIZE 0x20
+#include <myos/debug.h>
+#include <myos/global.h>
+#include <myos/interrupt.h>
+#include <myos/io.h>
+#include <myos/printk.h>
+#include <myos/stdlib.h>
+
+#define ENTRY_SIZE 0x30
+
+#define PIC_M_CTRL 0x20  // 主片控制端口
+#define PIC_M_DATA 0x21  // 主片数据端口
+#define PIC_S_CTRL 0xa0  // 从片控制端口
+#define PIC_S_DATA 0xa1  // 从片数据端口
+#define PIC_EOI 0x20     // 通知中断控制器中断结束
 
 gate_t idt[IDT_SIZE];
 pointer_t idt_ptr;
@@ -36,45 +47,86 @@ static char *messages[] = {
     "#CP Control Protection Exception\0",
 };
 
-void exception_handler(int vector)
-{
-    char *message = NULL;
-    if (vector < 22)
-    {
-        message = messages[vector];
-    }
-    else
-    {
-        message = messages[15];
-    }
-    printk("Exception : [0x%02X] %s \n", vector, message);
-    while (true)
-        ;
+void send_eoi(int vector) {
+  if (vector >= 0x20 && vector < 0x28) {
+    outb(PIC_M_CTRL, PIC_EOI);
+  }
+  if (vector >= 0x28 && vector < 0x30) {
+    outb(PIC_M_CTRL, PIC_EOI);
+    outb(PIC_S_CTRL, PIC_EOI);
+  }
 }
 
-void interrupt_init()
-{
-    for (size_t i = 0; i < ENTRY_SIZE; i++)
-    {
-        gate_t *gate = &idt[i];
-        handler_t handler = handler_entry_table[i];
-        gate->offset0 = (uint32)handler & 0xffff;
-        gate->offset1 = ((uint32)handler >> 16) & 0xffff;
-        gate->selector = 1 << 3; // 代码段
-        gate->reserved = 0;      // 保留不用
-        gate->type = 0b1110;     // 中断门
-        gate->segment = 0;       // 系统段
-        gate->DPL = 0;           // 内核态
-        gate->present = 1;       // 有效
-    }
+extern void schedule();
 
-    for (size_t i = 0; i < 0x20; i++)
-    {
-        handler_table[i] = exception_handler;
-    }
+void default_handler(int vector) {
+  send_eoi(vector);
+  schedule();
+}
 
-    idt_ptr.base = (uint32)idt;
-    idt_ptr.limit = sizeof(idt) - 1;
+void exception_handler(int vector, uint32 edi, uint32 esi, uint32 ebp,
+                       uint32 esp, uint32 ebx, uint32 edx, uint32 ecx,
+                       uint32 eax, uint32 gs, uint32 fs, uint32 es, uint32 ds,
+                       uint32 vector0, uint32 error, uint32 eip, uint32 cs,
+                       uint32 eflags) {
+  char *message = NULL;
+  if (vector < 22) {
+    message = messages[vector];
+  }
+  printk("\nEXCEPTION : %s \n", messages[vector]);
+  printk("   VECTOR : 0x%02X\n", vector);
+  printk("    ERROR : 0x%08X\n", error);
+  printk("   EFLAGS : 0x%08X\n", eflags);
+  printk("       CS : 0x%02X\n", cs);
+  printk("      EIP : 0x%08X\n", eip);
+  printk("      ESP : 0x%08X\n", esp);
+  hang();
+}
 
-    asm volatile("lidt idt_ptr\n");
+void pic_init() {
+  outb(PIC_M_CTRL, 0b00010001);  // ICW1:边沿触发，级联8259，需要ICW4.
+  outb(PIC_M_DATA, 0x20);        // ICW2: 起始端口号 0x20
+  outb(PIC_M_DATA, 0b00000100);  // ICW3: IR2接从片.
+  outb(PIC_M_DATA, 0b00000001);  // ICW4: 8086模式, 正常EOI
+
+  outb(PIC_S_CTRL, 0b00010001);  // ICW1: 边沿触发, 级联 8259, 需要ICW4.
+  outb(PIC_S_DATA, 0x28);        // ICW2: 起始端口号 0x28
+  outb(PIC_S_DATA, 2);  // ICW3: 设置从片连接到主片的 IR2 引脚
+  outb(PIC_S_DATA, 0b00000001);  // ICW4: 8086模式, 正常EOI
+
+  outb(PIC_M_DATA, 0b11111110);  // 关闭所有中断
+  outb(PIC_S_DATA, 0b11111111);  // 关闭所有中断
+}
+
+void idt_init() {
+  for (size_t i = 0; i < ENTRY_SIZE; i++) {
+    gate_t *gate = &idt[i];
+    handler_t handler = handler_entry_table[i];
+    gate->offset0 = (uint32)handler & 0xffff;
+    gate->offset1 = ((uint32)handler >> 16) & 0xffff;
+    gate->selector = 1 << 3;  // 代码段
+    gate->reserved = 0;       // 保留不用
+    gate->type = 0b1110;      // 中断门
+    gate->segment = 0;        // 系统段
+    gate->DPL = 0;            // 内核态
+    gate->present = 1;        // 有效
+  }
+
+  for (size_t i = 0; i < 0x20; i++) {
+    handler_table[i] = exception_handler;
+  }
+
+  for (size_t i = 0x20; i < ENTRY_SIZE; i++) {
+    handler_table[i] = default_handler;
+  }
+
+  idt_ptr.base = (uint32)idt;
+  idt_ptr.limit = sizeof(idt) - 1;
+
+  asm volatile("lidt idt_ptr\n");
+}
+
+void interrupt_init() {
+  pic_init();
+  idt_init();
 }
