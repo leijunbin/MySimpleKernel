@@ -1,5 +1,12 @@
 {
     "files.associations": {
         "types.h": "c"
-    }
+    },
+    "cpplint.cpplintPath": "/usr/local/bin/cpplint",
+    "cpplint.filters": [
+        "-readability/casting",
+        "-runtime/printf",
+        "-runtime/int"
+    ],
+    "cpplint.verbose": 0
 }

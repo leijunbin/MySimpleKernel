@@ -1,25 +1,25 @@
 // Copyright 2022 Junbin Lei
 
-#include <myos/assert.h>
-#include <myos/console.h>
-#include <myos/debug.h>
-#include <myos/global.h>
-#include <myos/interrupt.h>
-#include <myos/io.h>
-#include <myos/myos.h>
-#include <myos/printk.h>
-#include <myos/stdlib.h>
-#include <myos/string.h>
-#include <myos/task.h>
-
-char message[] = "Hello myos!!!\n";
-char buf[1024];
+extern void console_init();
+extern void gdt_init();
+extern void interrupt_init();
+extern void clock_init();
+extern void hang();
+extern void time_init();
+extern void rtc_init();
 
 void kernel_init() {
   console_init();
   gdt_init();
   interrupt_init();
-  task_init();
+  clock_init();
+  time_init();
+  rtc_init();
+
+  asm volatile("sti");
+  hang();
+
+  // task_init();
   // asm volatile(
   //     "sti\n"
   //     "movl %eax, %eax\n");

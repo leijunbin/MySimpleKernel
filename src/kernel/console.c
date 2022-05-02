@@ -103,18 +103,18 @@ void console_clear() {
 
 // 向上滚屏
 static void scroll_up() {
-  if (screen + SCR_SIZE + ROW_SIZE < MEM_END) {
-    uint32 *ptr = (uint32 *)(screen + SCR_SIZE);
-    for (size_t i = 0; i < WIDTH; i++) {
-      *ptr++ = erase;
-    }
-    screen += ROW_SIZE;
-    pos += ROW_SIZE;
-  } else {
+  if (screen + SCR_SIZE + ROW_SIZE >= MEM_END) {
     memcpy((void *)MEM_BASE, (void *)screen, SCR_SIZE);
     pos -= (screen - MEM_BASE);
     screen = MEM_BASE;
   }
+  uint32 *ptr = (uint32 *)(screen + SCR_SIZE);
+  for (size_t i = 0; i < WIDTH; i++) {
+    *ptr++ = erase;
+  }
+  screen += ROW_SIZE;
+  pos += ROW_SIZE;
+
   set_screen();
 }
 
@@ -146,6 +146,8 @@ static void command_bs() {
 // 在输入时忽略 不保存在输入缓冲中
 static void command_del() { *(uint16 *)pos = erase; }
 
+extern void start_beep();
+
 void console_write(char *buf, uint32 count) {
   char ch;
   while (count--) {
@@ -156,7 +158,7 @@ void console_write(char *buf, uint32 count) {
       case ASCII_ENQ:
         break;
       case ASCII_BEL:
-        // todo \a
+        start_beep();
         break;
       case ASCII_BS:
         command_bs();

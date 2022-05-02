@@ -1,5 +1,6 @@
 // Copyright 2022 Junbin Lei
 
+#include <myos/assert.h>
 #include <myos/debug.h>
 #include <myos/global.h>
 #include <myos/interrupt.h>
@@ -57,11 +58,32 @@ void send_eoi(int vector) {
   }
 }
 
-extern void schedule();
+void set_interrupt_handler(uint32 irq, handler_t handler) {
+  assert(irq >= 0 && irq < 16);
+  handler_table[IRQ_MASTER_NR + irq] = handler;
+}
+
+void set_interrupt_mask(uint32 irq, bool enable) {
+  assert(irq >= 0 && irq < 16);
+  uint16 port;
+  if (irq < 8) {
+    port = PIC_M_DATA;
+  } else {
+    port = PIC_S_DATA;
+    irq -= 8;
+  }
+  if (enable) {
+    outb(port, inb(port) & ~(1 << irq));
+  } else {
+    outb(port, inb(port) | (1 << irq));
+  }
+}
+
+uint16 counter;
 
 void default_handler(int vector) {
   send_eoi(vector);
-  schedule();
+  DEBUGK("[%x] default interrupt called %d...\n", vector, counter++);
 }
 
 void exception_handler(int vector, uint32 edi, uint32 esi, uint32 ebp,
@@ -94,7 +116,7 @@ void pic_init() {
   outb(PIC_S_DATA, 2);  // ICW3: 设置从片连接到主片的 IR2 引脚
   outb(PIC_S_DATA, 0b00000001);  // ICW4: 8086模式, 正常EOI
 
-  outb(PIC_M_DATA, 0b11111110);  // 关闭所有中断
+  outb(PIC_M_DATA, 0b11111111);  // 关闭所有中断
   outb(PIC_S_DATA, 0b11111111);  // 关闭所有中断
 }
 

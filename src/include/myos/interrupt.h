@@ -7,6 +7,24 @@
 
 #define IDT_SIZE 256
 
+#define IRQ_CLOCK 0       // 时钟
+#define IRQ_KEYBOARD 1    // 键盘
+#define IRQ_CASCADE 2     // 8259 从片控制器
+#define IRQ_SERIAL_2 3    // 串口 2
+#define IRQ_SERIAL_1 4    // 串口 1
+#define IRQ_PARALLEL_2 5  // 并口 2
+#define IRQ_FLOPPY 6      // 软盘控制器
+#define IRQ_PARALLEL_1 7  // 并口 1
+#define IRQ_RTC 8         // 实时时钟
+#define IRQ_REDIRECT 9    // 重定向 IRQ2
+#define IRQ_MOUSE 12      // 鼠标
+#define IRQ_MATH 13       // 协处理器 x87
+#define IRQ_HARDDISK 14   // ATA 硬盘第一通道
+#define IRQ_HARDDISK2 15  // ATA 硬盘第二通道
+
+#define IRQ_MASTER_NR 0x20  // 主片起始向量号
+#define IRQ_SLAVE_NR 0x28   // 从片起始向量号
+
 typedef struct gate_t {
   uint16 offset0;     // 段内偏移 0 ~ 15 位
   uint16 selector;    // 代码段选择子
@@ -20,6 +38,10 @@ typedef struct gate_t {
 
 typedef void *handler_t;
 
-void interrupt_init();
+void send_eoi(int vector);
+
+// 设置中断处理函数
+void set_interrupt_handler(uint32 irq, handler_t handler);
+void set_interrupt_mask(uint32 irq, bool enable);
 
 #endif  // SRC_INCLUDE_MYOS_INTERRUPT_H_

@@ -30,4 +30,6 @@ typedef int16 uint16;
 typedef unsigned int uint32;
 typedef int32 uint64;
 
+typedef uint32 time_t;
+
 #endif  // SRC_INCLUDE_MYOS_TYPES_H_
