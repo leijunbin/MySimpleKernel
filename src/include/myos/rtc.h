@@ -5,6 +5,7 @@
 
 #include <myos/types.h>
 
+void set_alarm(uint32 second);
 uint8 cmos_read(uint8 addr);
 void cmos_write(uint8 addr, uint8 value);
 

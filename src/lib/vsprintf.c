@@ -28,8 +28,8 @@ static int skip_atoi(const char **s) {
 // size - 字符串长度
 // precision - 数字长度（精度）
 // flags - 选项
-static char *number(char *str, long num, int base, int size, int precision,
-                    int flags) {
+static char *number(char *str, unsigned long num, int base, int size,
+                    int precision, int flags) {
   char c, sign, tmp[36];
   const char *digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   int i = 0;

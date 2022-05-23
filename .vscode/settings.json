@@ -1,6 +1,7 @@
 {
     "files.associations": {
-        "types.h": "c"
+        "types.h": "c",
+        "assert.h": "c"
     },
     "cpplint.cpplintPath": "/usr/local/bin/cpplint",
     "cpplint.filters": [

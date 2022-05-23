@@ -3,7 +3,9 @@
 #include <myos/assert.h>
 #include <myos/debug.h>
 #include <myos/interrupt.h>
+#include <myos/io.h>
 #include <myos/rtc.h>
+#include <myos/stdlib.h>
 #include <myos/time.h>
 #include <myos/types.h>
 
@@ -31,6 +33,7 @@ void cmos_write(uint8 addr, uint8 value) {
 }
 
 static uint32 volatile counter = 0;
+extern void start_beep();
 
 // 实时时钟中断处理函数
 void rtc_handler(int vector) {
@@ -44,6 +47,8 @@ void rtc_handler(int vector) {
   cmos_read(CMOS_C);
 
   set_alarm(1);
+
+  start_beep();
 
   DEBUGK("rtc handler %d...\n", counter++);
 }

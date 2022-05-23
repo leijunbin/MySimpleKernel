@@ -30,7 +30,7 @@ detect_memory:
     add di, cx
 
     ; 结构体数量加一
-    inc word [ards_count]
+    inc dword [ards_count]
 
     cmp ebx, 0
     jnz .next
@@ -89,7 +89,10 @@ protected_mode:
     mov ecx, 10 ;起始扇区编号
     mov bl, 200 ;扇区数量
 
-    call read_disk
+    call read_disk ; 读取内核
+
+    mov eax, 0x20220205 ; 内核魔数
+    mov ebx, ards_count ; ards 数量指针
 
     jmp dword code_selector:0x10000 
 
@@ -194,6 +197,6 @@ detecting:
     db "Detecting Memory Success...", 10, 13, 0 ;\n\r\0
 
 ards_count:
-    dw 0
+    dd 0
 
 ards_buffer: 

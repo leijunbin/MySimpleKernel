@@ -3,15 +3,19 @@
 #ifndef SRC_INCLUDE_MYOS_TYPES_H_
 #define SRC_INCLUDE_MYOS_TYPES_H_
 
+#include <myos/myos.h>
+
 #define EDF -1  // end of file
 
 #define NULL ((void *)0)  // 空指针
 
 #define EOS '\0'
 
+#ifndef __cplusplus
 #define bool _Bool
 #define true 1
 #define false 0
+#endif
 
 #define _packed __attribute__((packed))  // 忽略内存对齐
 
@@ -26,9 +30,9 @@ typedef int int32;
 typedef long long int64;
 
 typedef unsigned char uint8;
-typedef int16 uint16;
+typedef unsigned short uint16;
 typedef unsigned int uint32;
-typedef int32 uint64;
+typedef unsigned long long uint64;
 
 typedef uint32 time_t;
 

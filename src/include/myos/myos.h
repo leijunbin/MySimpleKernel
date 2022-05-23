@@ -3,8 +3,7 @@
 #ifndef SRC_INCLUDE_MYOS_MYOS_H_
 #define SRC_INCLUDE_MYOS_MYOS_H_
 
-#define MYOS_MAGIC 20220205
-
-void kernel_init();  // 初始化内核
+// 内核魔数，用于校验错误
+#define ONIX_MAGIC 0x20220205
 
 #endif  // SRC_INCLUDE_MYOS_MYOS_H_
